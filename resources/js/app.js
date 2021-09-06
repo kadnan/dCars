@@ -4,29 +4,66 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
+//require('./bootstrap');
+let currentAccount = null;
+let web3;
+let abi;
 
-window.Vue = require('vue');
+function handleAccountsChanged(accounts) {
+    console.log('Calling HandleChanged')
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+    if (accounts.length === 0) {
+        console.log('Please connect to MetaMask.');
+        $('#enableMetamask').html('Connect with Metamask')
+    } else if (accounts[0] !== currentAccount) {
+        currentAccount = accounts[0];
+        $('#enableMetamask').html(currentAccount)
+        $('#status').html('')
 
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+        if(currentAccount != null) {
+            // Set the button label
+            $('#enableMetamask').html(currentAccount)
+        }
+    }
+    console.log('WalletAddress in HandleAccountChanged ='+currentAccount)
+}
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+function connect() {
+    console.log('Calling connect()')
+    ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .then(handleAccountsChanged)
+        .catch((err) => {
+            if (err.code === 4001) {
+                // EIP-1193 userRejectedRequest error
+                // If this happens, the user rejected the connection request.
+                console.log('Please connect to MetaMask.');
+                $('#status').html('You refused to connect Metamask')
+            } else {
+                console.error(err);
+            }
+        });
+}
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+$(document).ready(function () {
 
-const app = new Vue({
-    el: '#app',
+    $('#enableMetamask').click(function() {
+        // alert('Hi Bay');
+        connect()
+    });
+
+    $('#btnReserved').click(function () {
+        var data_id = $(this).data('carid');
+        var url = `http://localhost:8000/car/${data_id}/reserve/`;
+
+        $.getJSON(url,function(result){
+            console.log(result.STATUS)
+        });
+
+
+    });
+
+    connect()
+
+
 });

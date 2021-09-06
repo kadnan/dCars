@@ -6,3 +6,10 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+.meta-gray {
+  -webkit-filter: grayscale(1);
+}
+.meta-normal {
+  -webkit-filter: grayscale(0);
+}

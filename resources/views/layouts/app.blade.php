@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{!! asset('js/app.js') !!}"></script>
     <style>
         .bs-example{
             margin: 20px;
@@ -26,10 +27,19 @@
                 <a href="#" class="nav-item nav-link active">Home</a>
                 <a href="#" class="nav-item nav-link">Browse Cars</a>
             </div>
-            <div class="navbar-nav ml-auto">
-                <a href="{!! route('register') !!}" class="nav-item nav-link">Register</a>
-                <a href="{!! route('login') !!}" class="nav-item nav-link">Login</a>
-            </div>
+            @guest
+                <div class="navbar-nav ml-auto">
+                    <a href="{!! route('register') !!}" class="nav-item nav-link">Register</a>
+                    <a href="{!! route('login') !!}" class="nav-item nav-link">Login</a>
+                </div>
+            @else
+                <div class="navbar-nav ml-auto">
+                    <button id="enableMetamask" class="btn btn-primary">Connect with Metamask</button>
+                    <a href="{!! route('addCar1') !!}" class="nav-item nav-link">Add Car</a>
+                    <a href="{!! route('user_dashboard') !!}" class="nav-item nav-link">Dashboard</a>
+                </div>
+            @endguest
+
         </div>
     </nav>
 </div>
