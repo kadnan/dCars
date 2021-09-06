@@ -16,6 +16,7 @@ class CreateCarsTable extends Migration
         Schema::create('cars', function (Blueprint $table) {
             $table->id();
 	        $table->string('name');
+	        $table->integer('user_id')->unsigned()->default(0);
 	        $table->string('vin');
 	        $table->float('price');
 	        $table->string('url');
