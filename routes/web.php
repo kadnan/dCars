@@ -14,11 +14,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get( '/', 'HomeController@index' )->name( 'index' );
-Route::get( '/car/{id}', 'HomeController@details' )->name( 'details' );
+
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get( '/home', 'HomeController@index' )->name( 'home' );
+
+Route::get( '/car/{id}', 'CarController@details' )->name( 'details' )->where( 'id', '[0-9]+' );
+
+Route::middleware( [ 'auth' ] )->group( function () {
+	Route::get( '/dashboard', 'HomeController@dashboard' )->name( 'user_dashboard' );
+	Route::get( '/car/add', 'CarController@addCar' )->name( 'addCar1' );
+	Route::get( '/car/{id}/reserve/', 'CarController@reserveCar' )->name( 'reserveCar' );
+	Route::post( '/car/added', 'CarController@addedCar' )->name( 'addedCar1' );
+} );
+
 
 /**
  * Admin Routes
