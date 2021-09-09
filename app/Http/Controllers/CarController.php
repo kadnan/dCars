@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Car;
+use App\NFT;
 use App\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class CarController extends Controller {
 	public function addCar() {
@@ -43,6 +45,7 @@ class CarController extends Controller {
 				$msg = [ 'STATUS' => 'OK' ];
 			}
 		}
+
 
 		return response()->json( $msg );
 
@@ -84,11 +87,41 @@ class CarController extends Controller {
 					] );
 
 					if ( $car->id > 0 ) {
+						/**
+						 * Add NFT Data
+						 */
+
+						$description = "This NFT Belongs to {$name}";
+						$image_url   = 'https://gateway.pinata.cloud/ipfs/' . $uploaded_file_hash;
+
+						$meta = [
+							'name'        => $name,
+							'description' => $description,
+							'image'       => $image_url,
+							'vin'         => $vin
+						];
+
+						$nft = NFT::create( [
+							'car_id' => $car->id,
+							'meta'   => json_encode( $meta )
+						] );
+
+
 						return redirect()->route( 'user_dashboard' );
 					}
 
 				}
 			}
+		}
+	}
+
+
+	public function getNFTMeta( $id ) {
+		$nft  = NFT::where( 'id', $id )->firstOrFail();
+		$meta = null;
+
+		if ( $nft != null ) {
+			return response()->json(json_decode($nft->meta,true));
 		}
 	}
 }
