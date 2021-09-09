@@ -1,5 +1,13 @@
 @extends('layouts.app')
 @section('content')
+    @php
+        $wallet_address = "";
+    @endphp
+    @if(\Session::has('wallet_address'))
+        @php
+            $wallet_address = \Session::get('wallet_address')
+        @endphp
+    @endif
     <div style="margin-top: 30px" class="row">
         <div class="col-md-2">
             <img height="300" width="300" class=""
@@ -14,7 +22,7 @@
                         title="{!! ($isReserved?'Already Reserved':'Click to reserve') !!}"
                         {!! ($isReserved?'disabled':'') !!} class="btn btn-primary">Reserve
                 </button>
-                <button id="btnBuy" class="btn btn-danger">BUY</button>
+                <button data-wallet="{!! $wallet_address !!}" id="btnBuy" class="btn btn-danger">BUY</button>
             </div>
         </div>
     </div>

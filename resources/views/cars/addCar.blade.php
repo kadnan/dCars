@@ -7,7 +7,7 @@
     </div>
     <div class="row">
         <div class="col-md-4 offset-3">
-            <form method="POST" action="{!! route('addedCar') !!}" enctype="multipart/form-data">
+            <form method="POST" action="{!! route('addedCar1') !!}" enctype="multipart/form-data">
                 {!! csrf_field() !!}
                 <div class="form-group">
                     <label for="name">Name</label>
@@ -15,7 +15,7 @@
                 </div>
                 <div class="form-group">
                     <label for="vin">VIN</label>
-                    <input type="number" class="form-control" id="vin" name="vin">
+                    <input type="text" class="form-control" id="vin" name="vin">
                 </div>
                 <div class="form-group">
                     <label for="price">Price</label>

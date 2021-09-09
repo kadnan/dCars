@@ -20,18 +20,26 @@ function handleAccountsChanged(accounts) {
         $('#enableMetamask').html(currentAccount)
         $('#status').html('')
 
-        if(currentAccount != null) {
+        if (currentAccount != null) {
             // Set the button label
             $('#enableMetamask').html(currentAccount)
         }
     }
-    console.log('WalletAddress in HandleAccountChanged ='+currentAccount)
+
+    let url = 'http://localhost:8000/set_wallet/' + currentAccount;
+
+    $.getJSON(url, function (result) {
+        console.log(result)
+    });
+    console.log('WalletAddress in HandleAccountChanged =' + currentAccount)
+
+    //Set AJAX request to insert value in DB
 }
 
 function connect() {
     console.log('Calling connect()')
     ethereum
-        .request({ method: 'eth_requestAccounts' })
+        .request({method: 'eth_requestAccounts'})
         .then(handleAccountsChanged)
         .catch((err) => {
             if (err.code === 4001) {
@@ -47,23 +55,39 @@ function connect() {
 
 $(document).ready(function () {
 
-    $('#enableMetamask').click(function() {
+    $('#enableMetamask').click(function () {
         // alert('Hi Bay');
         connect()
     });
 
     $('#btnReserved').click(function () {
-        var data_id = $(this).data('carid');
-        var url = `http://localhost:8000/car/${data_id}/reserve/`;
+        let data_id = $(this).data('carid');
+        let url = `http://localhost:8000/car/${data_id}/reserve/`;
 
-        $.getJSON(url,function(result){
+        $.getJSON(url, function (result) {
             console.log(result.STATUS)
         });
 
 
     });
 
-    connect()
+    $('#btnBuy').click(function () {
+        let registered_wallet = $(this).data('wallet');
+        console.log(registered_wallet);
+        console.log('Current Account = ' + currentAccount)
 
+        if (registered_wallet != currentAccount) {
+            alert('You are using the wallet which is not registered with us. Your registered wallet address is:- ' + registered_wallet + ' while you are connected with the wallet address:-' + currentAccount)
+            return false
+        }
+        // var url = `http://localhost:8000/car/${data_id}/reserve/`;
+        //
+        // $.getJSON(url, function (result) {
+        //     console.log(result.STATUS)
+        // });
+
+
+    });
+    connect()
 
 });
