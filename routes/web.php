@@ -27,9 +27,10 @@ Route::middleware( [ 'auth' ] )->group( function () {
 	Route::get( '/car/add', 'CarController@addCar' )->name( 'addCar1' );
 	Route::get( '/car/{id}/reserve/', 'CarController@reserveCar' )->name( 'reserveCar' );
 	Route::post( '/car/added', 'CarController@addedCar' )->name( 'addedCar1' );
+	Route::get( '/set_wallet/{address}', 'HomeController@setWalletAddress' )->name( 'setWalletAddress' );
 } );
 
-
+Route::get( '/nft/meta/{id}.json', 'CarController@getNFTMeta' )->name( 'getNFTMeta' );
 /**
  * Admin Routes
  */
