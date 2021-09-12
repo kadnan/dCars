@@ -28,6 +28,8 @@ Route::middleware( [ 'auth' ] )->group( function () {
 	Route::get( '/car/{id}/reserve/', 'CarController@reserveCar' )->name( 'reserveCar' );
 	Route::post( '/car/added', 'CarController@addedCar' )->name( 'addedCar1' );
 	Route::get( '/set_wallet/{address}', 'HomeController@setWalletAddress' )->name( 'setWalletAddress' );
+	Route::post( '/nft/minted', 'NFTController@minted' )->name( 'minted' );
+	Route::post( '/transaction/add', 'TransactionController@add' )->name( 'add_transaction' );
 } );
 
 Route::get( '/nft/meta/{id}.json', 'CarController@getNFTMeta' )->name( 'getNFTMeta' );

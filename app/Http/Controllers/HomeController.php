@@ -26,8 +26,10 @@ class HomeController extends Controller {
 	}
 
 	public function setWalletAddress( $address ) {
-		$user_id   = Auth::user()->id;
-		$hasWallet = UserWallets::where( [ 'user_id' => $user_id, 'address' => $address ] )->exists();
+		$user_id = Auth::user()->id;
+		//$hasWallet = UserWallets::where( [ 'user_id' => $user_id, 'address' => $address ] )->exists();
+		$hasWallet = UserWallets::where( 'user_id', $user_id )
+		                        ->orWhere( 'address', $address )->exists();
 
 		if ( ! $hasWallet ) {
 			UserWallets::create( [

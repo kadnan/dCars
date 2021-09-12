@@ -22,7 +22,7 @@
                         title="{!! ($isReserved?'Already Reserved':'Click to reserve') !!}"
                         {!! ($isReserved?'disabled':'') !!} class="btn btn-primary">Reserve
                 </button>
-                <button data-wallet="{!! $wallet_address !!}" id="btnBuy" class="btn btn-danger">BUY</button>
+                <button data-price="{!! $car->price !!}" data-nftid = "{!! $nft_id !!}" data-carid="{!! $car->id !!}" data-wallet="{!! $wallet_address !!}" id="btnBuy" class="btn btn-danger">BUY</button>
             </div>
         </div>
     </div>

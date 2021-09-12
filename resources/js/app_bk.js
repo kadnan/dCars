@@ -18,17 +18,17 @@ function addTransaction(tx_hash, data) {
         }
     });
 
-    $.post('http://localhost:8000/transaction/add', {tx_hash: tx_hash, data: JSON.stringify(data)}, function (result) {
+    $.post('http://localhost:8000/transaction/add', {tx_hash:tx_hash,data:JSON.stringify(data)}, function (result) {
         console.log(result);
     });
 }
 
-async function payEther(car_price) {
+function payEther(car_price) {
     let isTransaction = false;
     let MERCHANT_ACCOUNT = '0x3595B4054E1A86Ef5D86fc4A03A58fc998a26d5a'
     let eth_wei = ethUnit.toWei(car_price, 'ether');
-    // console.log('ETH AMOUNT ='+eth_wei)
-    // console.log('ETH IN HEX ='+eth_wei.toString(16))
+    console.log('ETH AMOUNT ='+eth_wei)
+    console.log('ETH IN HEX ='+eth_wei.toString(16))
     let invoice_id_hex = '494e562d3030';
 
     const transactionParameters = {
@@ -38,29 +38,28 @@ async function payEther(car_price) {
         to: MERCHANT_ACCOUNT, // Required except during contract publications.
         from: currentAccount, // must match user's active address.
         value: eth_wei.toString(16),
-        data: invoice_id_hex, // You must use a random Invoice ID. it is for Demo Purpose Only
+        data:invoice_id_hex, // You must use a random Invoice ID. it is for Demo Purpose Only
         chainId: '0x3', // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
     };
-    // console.log(transactionParameters)
+    console.log(transactionParameters)
 
-    if (currentAccount != null) {
-        let txHash = null;
-        try {
-            txHash = await ethereum.request({
-                method: 'eth_sendTransaction',
-                params: [transactionParameters],
+    if(currentAccount != null) {
+
+        const txHash = ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        })
+            .then(function(tx){
+                console.log('ETHER Transaction Hash ='+tx)
+                console.log('ETHER RECEIVER Wallet Inside ='+currentAccount)
+                console.log('ETHER Invoice ID = '+invoice_id_hex)
+                addTransaction(tx,{'invoice_id':invoice_id_hex})
+                isTransaction = true;
+            })
+            .catch((error) => {
+                console.log('Error during the transaction')
+                console.log(error)
             });
-            console.log(txHash)
-        } catch (error) {
-            console.log(error.code)
-            console.log(error)
-        }
-        // console.log('Printing MetaMask Result')
-        // console.log(txHash)
-        if (txHash != null) {
-            addTransaction(txHash, {'invoice_id': invoice_id_hex})
-            isTransaction = true;
-        }
     }
 
     return isTransaction
@@ -113,34 +112,34 @@ function connect() {
 /**
  * This function will call contract's mintNFT function and return hashTX and Token URI
  */
-async function createNFT(uri, account) {
+ async function createNFT(uri, account) {
     let web3;
     let tx_hash = null;
     let token_id = 0;
     try {
-        console.log('Inside createNFT');
-        // console.log(abi);
-        console.log(account);
-        web3 = new Web3(new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545"));
-        const contract = new web3.eth.Contract(
-            abi,
-            contactAddress
-        );
+            console.log('Inside createNFT');
+            // console.log(abi);
+            console.log(account);
+            web3 = new Web3(new Web3.providers.HttpProvider("HTTP://127.0.0.1:7545"));
+            const contract = new web3.eth.Contract(
+                abi,
+                contactAddress
+            );
 
-        tx_hash = await contract.methods.mintNFT(uri).send({from: account, gas: 1000000}).then(function (result) {
-            console.log(result);
-            let tx = result.transactionHash;
-            return tx
-        });
-        console.log('Hash Outside:- ' + tx_hash)
+        tx_hash = await contract.methods.mintNFT(uri).send({from: account,gas: 1000000}).then(function (result) {
+                console.log(result);
+                let tx = result.transactionHash;
+                return tx
+            });
+        console.log('Hash Outside:- '+tx_hash)
 
         let receipt = await web3.eth.getTransactionReceipt(tx_hash)
             .then(function (result) {
                 return result
             });
-        let topics = receipt['logs'][0]['topics'];
+        let topics  = receipt['logs'][0]['topics'];
         let tokenIdHex = topics[3].toString(10);
-        token_id = parseInt(tokenIdHex, 16)
+        token_id = parseInt(tokenIdHex,16)
 
     } catch (error) {
         console.log('Exception in createNFT')
@@ -149,7 +148,7 @@ async function createNFT(uri, account) {
     finally {
         web3 = null;
     }
-    return {'tx_hash': tx_hash, 'token_id': token_id};
+    return {'tx_hash':tx_hash,'token_id':token_id};
 }
 
 let base_url = 'http://localhost:8000/';
@@ -208,45 +207,7 @@ $(document).ready(function () {
         /**
          * This function will deduct Ether price of the Car
          */
-        payEther(car_price).then(function (result) {
-            console.log('PayEther Return Value')
-            if (result) {
-                console.log('Payment fetched, lets Mint NFT')
-                /**
-                 * Add NFT Code Here
-                 */
-
-                let output = createNFT(meta_url, currentAccount).then(function (result) {
-                    console.clear()
-                    let transaction_hash = result.tx_hash
-                    let token_id = result.token_id
-
-                    const mint_url = "http://localhost:8000/nft/minted";
-                    console.log(nftid + '-' + transaction_hash + '-' + token_id + '-' + car_id, currentAccount, 'dCar');
-                    console.log('Mint Transaction Hash:- ' + transaction_hash)
-
-                    $.post(mint_url, {
-                            nft_id: nftid,
-                            event: "mint",
-                            to: currentAccount,
-                            from: 'dCars',
-                            tx_hash: transaction_hash,
-                            token_id: token_id,
-                            car_id: car_id
-                        },
-                        function (data) {
-                            console.log(data);
-                        }
-                    );
-                });
-            } else {
-                console.log('User do not want NFT!!!')
-            }
-        });
-
-        // let hasPaid = payEther(car_price);
-        // console.log('PayEther Return Value')
-        // console.log(hasPaid)
+        payEther(car_price)
 
 
         /**
@@ -254,33 +215,38 @@ $(document).ready(function () {
          * 2- Event Logging for Minting
          * 1- Show MetaMask Interface to accept price and fetch Hash
          */
-        // let transaction_hash;
-        // let token_id;
-        //
-        // //The return response is actually a PROMISE
-        // let output =  createNFT(meta_url,currentAccount).then(function (result) {
-        //     // console.clear()
-        //     transaction_hash = result.tx_hash
-        //     token_id = result.token_id
-        //
-        //     const mint_url = "http://localhost:8000/nft/minted";
-        //     console.log(nftid+'-'+transaction_hash+'-'+token_id+'-'+car_id,currentAccount,'dCar');
-        //
-        //     $.post(mint_url, {  nft_id:nftid,
-        //             event: "mint",
-        //             to: currentAccount,
-        //             from: 'dCars',
-        //             tx_hash:transaction_hash,
-        //             token_id:token_id,
-        //             car_id:token_id
-        //         },
-        //         function (data) {
-        //             console.log(data);
-        //         }
-        //     );
-        // });
+        let transaction_hash;
+        let token_id;
+
+        //The return response is actually a PROMISE
+        let output =  createNFT(meta_url,currentAccount).then(function (result) {
+            // console.clear()
+            transaction_hash = result.tx_hash
+            token_id = result.token_id
+
+            const mint_url = "http://localhost:8000/nft/minted";
+            console.log(nftid+'-'+transaction_hash+'-'+token_id+'-'+car_id,currentAccount,'dCar');
+
+            $.post(mint_url, {  nft_id:nftid,
+                    event: "mint",
+                    to: currentAccount,
+                    from: 'dCars',
+                    tx_hash:transaction_hash,
+                    token_id:token_id,
+                    car_id:token_id
+                },
+                function (data) {
+                    console.log(data);
+                }
+            );
+        });
 
         //Execute Minted URL Here
+
+
+
+
+
 
 
     });

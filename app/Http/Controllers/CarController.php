@@ -16,11 +16,18 @@ class CarController extends Controller {
 	}
 
 	public function details( $id ) {
-		$car        = Car::where( 'id', $id )->first();
+		/**
+		 *  Both queries should be in a JOIN for production system.
+		 *  I am adding features later so too lazy to add them in a single query
+		 */
+		$car    = Car::where( 'id', $id )->first();
+		$nft = NFT::where( 'car_id', $car->id )->first();
+
 		$isReserved = Reservation::where( 'car_id', $id )->exists();
 
 		return view( 'cars/details' )
 			->with( 'car', $car )
+			->with( 'nft_id', $nft->id )
 			->with( 'isReserved', $isReserved );
 	}
 
@@ -121,7 +128,7 @@ class CarController extends Controller {
 		$meta = null;
 
 		if ( $nft != null ) {
-			return response()->json(json_decode($nft->meta,true));
+			return response()->json( json_decode( $nft->meta, true ) );
 		}
 	}
 }
