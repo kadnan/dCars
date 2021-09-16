@@ -138,6 +138,10 @@ async function createNFT(uri, account) {
             .then(function (result) {
                 return result
             });
+
+        /**
+         * In order to grab the returned TokenID we need to grab info from logs.
+         */
         let topics = receipt['logs'][0]['topics'];
         let tokenIdHex = topics[3].toString(10);
         token_id = parseInt(tokenIdHex, 16)
@@ -239,49 +243,12 @@ $(document).ready(function () {
                         }
                     );
                 });
+
+                alert('You successfully bought this car. The car ownership transferred to you.')
             } else {
                 console.log('User do not want NFT!!!')
             }
         });
-
-        // let hasPaid = payEther(car_price);
-        // console.log('PayEther Return Value')
-        // console.log(hasPaid)
-
-
-        /**
-         * 3 - Mint NFT and store TX Hash and Token URI (End Point)
-         * 2- Event Logging for Minting
-         * 1- Show MetaMask Interface to accept price and fetch Hash
-         */
-        // let transaction_hash;
-        // let token_id;
-        //
-        // //The return response is actually a PROMISE
-        // let output =  createNFT(meta_url,currentAccount).then(function (result) {
-        //     // console.clear()
-        //     transaction_hash = result.tx_hash
-        //     token_id = result.token_id
-        //
-        //     const mint_url = "http://localhost:8000/nft/minted";
-        //     console.log(nftid+'-'+transaction_hash+'-'+token_id+'-'+car_id,currentAccount,'dCar');
-        //
-        //     $.post(mint_url, {  nft_id:nftid,
-        //             event: "mint",
-        //             to: currentAccount,
-        //             from: 'dCars',
-        //             tx_hash:transaction_hash,
-        //             token_id:token_id,
-        //             car_id:token_id
-        //         },
-        //         function (data) {
-        //             console.log(data);
-        //         }
-        //     );
-        // });
-
-        //Execute Minted URL Here
-
 
     });
     connect()

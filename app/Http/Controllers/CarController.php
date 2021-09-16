@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Car;
 use App\NFT;
+use App\NFTHistory;
+use App\NFTOwners;
 use App\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -17,17 +19,33 @@ class CarController extends Controller {
 
 	public function details( $id ) {
 		/**
-		 *  Both queries should be in a JOIN for production system.
+		 *  Queries should be in a JOIN for production system.
 		 *  I am adding features later so too lazy to add them in a single query
 		 */
-		$car    = Car::where( 'id', $id )->first();
-		$nft = NFT::where( 'car_id', $car->id )->first();
+		$isOwner        = false;
+		$owner_address  = '';
+		$car            = Car::where( 'id', $id )->first();
+		$nft            = NFT::where( 'car_id', $car->id )->first();
+		$nft_history    = NFTHistory::where( 'nft_id', $nft->id )->get();
+		$isReserved     = Reservation::where( 'car_id', $id )->exists();
+		$session_wallet = \Session::get( 'wallet_address' );
+		$nft_owner      = NFTOwners::where( 'nft_id', $nft->id )->first();
 
-		$isReserved = Reservation::where( 'car_id', $id )->exists();
+		if ( $nft_owner != null ) {
+			if ( $nft_owner->owner_address == $session_wallet ) {
+				$isOwner = true;
+			}
+
+			$owner_address = $nft_owner->owner_address;
+		}
+
 
 		return view( 'cars/details' )
 			->with( 'car', $car )
 			->with( 'nft_id', $nft->id )
+			->with( 'history', $nft_history )
+			->with( 'isOwner', $isOwner )
+			->with( 'owner_address', $owner_address )
 			->with( 'isReserved', $isReserved );
 	}
 

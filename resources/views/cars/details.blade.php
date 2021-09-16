@@ -20,10 +20,16 @@
             <div>
                 <button id="btnReserved" data-carid="{!! $car->id !!}"
                         title="{!! ($isReserved?'Already Reserved':'Click to reserve') !!}"
-                        {!! ($isReserved?'disabled':'') !!} class="btn btn-primary">Reserve
+                        {!! ($isReserved?'disabled':'') !!} {!! ($car->status == 4)? 'disabled':'' !!}  class="btn btn-primary d-none">Reserve
                 </button>
-                <button data-price="{!! $car->price !!}" data-nftid = "{!! $nft_id !!}" data-carid="{!! $car->id !!}" data-wallet="{!! $wallet_address !!}" id="btnBuy" class="btn btn-danger">BUY</button>
+                <button {!! ($car->status == 4)? 'disabled':'' !!} data-price="{!! $car->price !!}" data-nftid = "{!! $nft_id !!}" data-carid="{!! $car->id !!}" data-wallet="{!! $wallet_address !!}" id="btnBuy" class="btn btn-danger">BUY</button>
             </div>
+            @if($isOwner)
+                <div><span style="color: red; font-size: 16px; font-weight: bold;">You are the owner!</span></div>
+            @endif
+            @if($car->status == 4)
+                <div><span style="color: green; font-size: 16px; font-weight: bold;">Owner:- {!! $owner_address !!}</span></div>
+            @endif
         </div>
     </div>
     <div style="margin-top: 100px;" class="row">
@@ -35,26 +41,22 @@
         <div class="col-md-12">
             <table class="table table-striped">
                 <thead>
-                <tr>
-                    <th>Event</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Date</th>
-                </tr>
+                    <tr>
+                        <th>Event</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Date</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>Transfer</td>
-                    <td>0xa394...</td>
-                    <td>0xvf94...</td>
-                    <td>12-04-21</td>
-                </tr>
-                <tr>
-                    <td>Mint</td>
-                    <td>0xa394...</td>
-                    <td>0xvf94...</td>
-                    <td>12-04-21</td>
-                </tr>
+                @foreach($history as $record)
+                    <tr>
+                        <td>{!! ucwords($record->event) !!}</td>
+                        <td>{!! $record->from !!}</td>
+                        <td>{!! $record->to !!}</td>
+                        <td>{!! $record->created_at !!}</td>
+                    </tr>
+                @endforeach
                 </tbody>
             </table>
         </div>
